@@ -159,6 +159,10 @@ export interface AppState {
 	getProfileUploadUrl: () => string,
 
 	setProfile: (data: { [key: string]: string }) => Promise<void>
+
+	updateLastSeen: (data: string) => Promise<void>
+
+	updateOnline: (data: string) => Promise<void>
 }
 
 const initialState: AppState = {
@@ -237,6 +241,8 @@ const initialState: AppState = {
 	getProfileUploadUrl: () => '',
 	setProfile: async () => {},
 	deleteChannel: async () => {},
+	updateLastSeen: async () => {},
+	updateOnline: async () => {},
 };
 
 export function createAppStore(cqWorkspacesClient: CQWorkspacesClient): UseStore<AppState> {
@@ -983,6 +989,58 @@ export function createAppStore(cqWorkspacesClient: CQWorkspacesClient): UseStore
 					foundCh.pinned_message_id = null;
 				}
 			});
+		});
+
+		cqWorkspacesClient.on('userleft-received', async (data: any) => {
+			console.log('userleftReceived wtih data ', data);
+			const { messages } = get();
+			console.log(messages);
+			const updatedMessages = messages?.map((mesg: any) => {
+				console.log(mesg?.created_by?._id, data);
+				if (mesg?.created_by?._id === data) {
+					console.log('hii');
+					const msg = {
+						...mesg,
+                        created_by: {
+                            ...mesg.created_by,
+                            lastseen_at: Date.now(),
+                        },
+					};
+					return msg;
+				}
+				return mesg;
+			});
+			console.log(1234568, updatedMessages);
+            set((state) => ({
+                ...state,
+                messages: updatedMessages,
+            }));
+		});
+
+		cqWorkspacesClient.on('userjoin-recieved', async (data: any) => {
+			console.log('userjoinReceived wtih data ', data);
+			const { messages } = get();
+			console.log(messages);
+			const updatedMessages = messages?.map((mesg: any) => {
+				console.log(mesg?.created_by?._id, data);
+				if (mesg?.created_by?._id === data) {
+					console.log('hii');
+					const msg = {
+						...mesg,
+                        created_by: {
+                            ...mesg.created_by,
+                            lastseen_at: '-1',
+                        },
+					};
+					return msg;
+				}
+				return mesg;
+			});
+			console.log(1234569, updatedMessages);
+            set((state) => ({
+                ...state,
+                messages: updatedMessages,
+            }));
 		});
 
 		cqWorkspacesClient.on('socket-connected', async () => {

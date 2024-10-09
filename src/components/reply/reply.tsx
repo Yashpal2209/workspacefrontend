@@ -1,10 +1,10 @@
 import React, {
 	useCallback, useState, useEffect, useMemo,
 } from 'react';
-
 import { DeleteOutlined, EditOutlined, CopyOutlined } from '@ant-design/icons';
 import {
 	Popover, Image, Popconfirm, Tooltip, message as alertMessage,
+	Modal,
 } from 'antd';
 import Linkify from 'react-linkify';
 import styles from './reply.module.css';
@@ -12,7 +12,7 @@ import { UserAvatar } from '../avatar';
 import { getReplyTimeString } from '../../libs/utils';
 import { UserDetailsCard } from '../user-details-card';
 import {
-	UserRoles, ReplyEventKind, MessageEventKind, channelWritePermissionType,
+	UserRoles, ReplyEventKind, MessageEventKind, channelWritePermissionType, ChannelKind,
 } from '../../config';
 import { FileAttachment } from '../file-attachment';
 
@@ -24,19 +24,24 @@ interface ReplyProps {
 	messageReplyId?: string | undefined
 	channelUsers?: any | null
 	currentChannelPermission: any | null
+	currentChannelType: any | null
 	deleteReply: (
 		replyId: string,
 		messageId: string
 	) => Promise<void>
 
 	setMessageReplyId: (messageId: string) => void
+
+	handleDMUser?: (userId: string) => Promise<void>
 }
 
 export const Reply: React.FC<ReplyProps> = (props) => {
 	const {
 		sessionData, message, messageParent, deleteReply, setMessageReplyId,
+		handleDMUser,
 		messageReplyId,
 		currentChannelPermission,
+		currentChannelType,
 		channelUsers,
 		isSidebarEmbed,
 	} = props;
@@ -44,6 +49,7 @@ export const Reply: React.FC<ReplyProps> = (props) => {
 	const [deleteLoader, setDeleteLoader] = useState(false);
 	const [deleteVisible, setdeleteVisible] = useState(false);
 	const [tokenMessage, setTokenMessage] = useState<[]>([]);
+	const [isProfileModalVisible, setIsProfileModalVisible] = useState(false);
 	const showPopconfirmDelete = () => {
 		setdeleteVisible(true);
 	};
@@ -67,6 +73,10 @@ export const Reply: React.FC<ReplyProps> = (props) => {
 	const handleEditReply = useCallback((messageId: string) => {
 		setMessageReplyId(messageId);
 	}, [setMessageReplyId]);
+
+	const showAnyUserProfile = useCallback(() => {
+		setIsProfileModalVisible(!isProfileModalVisible);
+	}, [isProfileModalVisible]);
 
 	const copyThisMessage = useCallback(
 		async () => {
@@ -107,6 +117,9 @@ export const Reply: React.FC<ReplyProps> = (props) => {
 					size={25}
 					style={{ fontSize: 12 }}
 				/>
+				{message.created_by?.lastseen_at === '-1' ? (
+					<div className={styles.onlineUserIcon} />
+				) : ''}
 			</div>
 			<div className={styles.reply}>
 				{
@@ -168,22 +181,66 @@ export const Reply: React.FC<ReplyProps> = (props) => {
 					)
 				}
 				<div className={`${styles.replyContent} selectable`}>
-					<Popover
+					{/* <Popover
 						trigger={['click']}
 						placement="right"
 						content={(
-							<UserDetailsCard
-								id={message.created_by?._id}
-								src={sessionData?.userId === message.created_by?._id ? sessionData?.profilePic : ''}
-								displayName={message.created_by?.displayname}
-								email={message.created_by?.email}
-								showEmail={sessionData?.role !== UserRoles.User}
-							/>
+							<div>
+								<UserDetailsCard
+									id={message.created_by?._id}
+									src={sessionData?.userId ===
+									 message.created_by?._id ? sessionData?.profilePic : ''}
+									displayName={message.created_by?.displayname}
+									email={message.created_by?.email}
+									showEmail={sessionData?.role !== UserRoles.User}
+									showDm={currentChannelType !== ChannelKind.Private
+										&& sessionData?.role !== '1'
+										&& handleDMUser && !isSidebarEmbed
+										&& currentChannelType !== ChannelKind.Private
+										&& message.created_by?._id !== sessionData?.userId}
+									handleDMUser={handleDMUser}
+									showLastseen
+									lastseen={message.created_by?.lastseen_at}
+								/>
+							</div>
 						)}
 						getPopupContainer={(trigger) => trigger.parentElement || document.body}
 					>
 						<span>{message.created_by?.displayname}</span>
-					</Popover>
+					</Popover> */}
+					<Modal
+						visible={isProfileModalVisible}
+						onCancel={() => { setIsProfileModalVisible(false); }}
+						footer={null}
+						closable={false}
+						maskClosable
+					>
+						<UserDetailsCard
+							id={message.created_by?._id}
+							src={sessionData?.userId === message.created_by?._id ? sessionData?.profilePic : ''}
+							displayName={message.created_by?.displayname}
+							email={message.created_by?.email}
+							showEmail={sessionData?.role !== UserRoles.User}
+							showDm={currentChannelType !== ChannelKind.Private
+								&& sessionData?.role !== '1'
+								&& handleDMUser && !isSidebarEmbed
+								&& currentChannelType !== ChannelKind.Private
+								&& message.created_by?._id !== sessionData?.userId}
+							handleDMUser={handleDMUser}
+							userStatus={channelUsers[message?.created_by?._id]?.status || ''}
+							showLastseen
+							lastseen={message.created_by?.lastseen_at}
+						/>
+					</Modal>
+					<span
+						onClick={showAnyUserProfile}
+						role="button"
+						onKeyDown={() => { }}
+						tabIndex={0}
+						style={{ cursor: 'pointer' }}
+					>
+						{channelUsers[message?.created_by?._id]?.displayname}
+					</span>
 					<span> - </span>
 					{message.status === ReplyEventKind.Add || message.status === ReplyEventKind.Edit ? (
 						<Linkify

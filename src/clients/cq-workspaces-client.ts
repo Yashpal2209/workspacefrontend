@@ -36,6 +36,8 @@ interface ClientEvents {
 	'removePin-received': (data: any) => void
 	'deleteChannel-received': (data: any) => void
 	'channelUserDataChange-received': (data: any) => void
+	'userleft-received': (data: any) => void
+	'userjoin-recieved': (data: any) => void
 }
 
 interface SocketEmitEvents {
@@ -57,6 +59,8 @@ interface SocketEmitEvents {
 	unLikeMessage: (data: any) => void
 	getUsersListByNamePrefix: (data: any) => void
 	getChannelUsersList: (data: any) => void
+	userleft: (data: any) => void
+	userjoin: (data: any) => void
 }
 
 interface SocketListenEvents {
@@ -78,6 +82,8 @@ interface SocketListenEvents {
 	channelUserDataChange: (data: any) => void
 	addPin: (data: any) => void
 	removePin: (data: any) => void
+	userleft: (data: any) => void
+	userjoin: (data: any) => void
 }
 
 export class CQWorkspacesClient extends (EventEmitter as new () => TypedEmitter<ClientEvents>) {
@@ -231,6 +237,16 @@ export class CQWorkspacesClient extends (EventEmitter as new () => TypedEmitter<
 		this.emit('removePin-received', data);
 	};
 
+	private _onUserLeft = (data: any): void => {
+        console.log('userleft recieed', data);
+		this.emit('userleft-received', data);
+    };
+
+	private _userJoin = (data: any): void => {
+        console.log('userjoin recived', data);
+        this.emit('userjoin-recieved', data);
+    };
+
 	private _attachSocketListeners = (): void => {
 		const { _socket } = this;
 
@@ -253,6 +269,8 @@ export class CQWorkspacesClient extends (EventEmitter as new () => TypedEmitter<
 		_socket.on('addPin', this._onAddPin);
 		_socket.on('removePin', this._onRemovePin);
 		_socket.on('channelUserDataChange', this._onChannelUserDataChange);
+		_socket.on('userleft', this._onUserLeft);
+		_socket.on('userjoin', this._userJoin);
 	};
 
 	private _detachSocketListeners = (): void => {
@@ -276,6 +294,8 @@ export class CQWorkspacesClient extends (EventEmitter as new () => TypedEmitter<
 		_socket.off('deleteChannel', this._ondeleteChannel);
 		_socket.off('addPin', this._onAddPin);
 		_socket.off('removePin', this._onRemovePin);
+		_socket.off('userleft', this._onUserLeft);
+		_socket.off('userjoin', this._userJoin);
 	};
 
 	get connected(): boolean {
@@ -1063,5 +1083,29 @@ export class CQWorkspacesClient extends (EventEmitter as new () => TypedEmitter<
 			throw new Error(response.data.error);
 		}
 		return response.data;
+	};
+
+	updateLastSeen = async (
+		userId: string,
+	): Promise<any> => {
+		if (!this.connected) {
+			throw new Error('please check your connection!');
+		}
+		console.log('user left');
+		this._socket.emit('userleft', {
+			userId,
+			time: Date.now(),
+		});
+	};
+
+	updateOnline = async (userId: string): Promise<any> => {
+		if (!this.connected) {
+            throw new Error('please check your connection!');
+        }
+        console.log('user joined');
+        this._socket.emit('userjoin', {
+            userId,
+            time: Date.now(),
+        });
 	};
 }

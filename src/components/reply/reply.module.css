@@ -56,3 +56,14 @@ span.mentionInMessage {
 	padding: 1px;
 	background: #FFEEE5;
 }
+
+.onlineUserIcon {
+	background-color: #52c41a;
+	width: 7px;
+    height: 7px;
+    border-radius: 100%;
+    position: relative;
+    /* padding-right: 50px; */
+    margin-left: 15px;
+    margin-top: -5px;
+}
