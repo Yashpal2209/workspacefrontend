@@ -238,12 +238,10 @@ export class CQWorkspacesClient extends (EventEmitter as new () => TypedEmitter<
 	};
 
 	private _onUserLeft = (data: any): void => {
-        console.log('userleft recieed', data);
 		this.emit('userleft-received', data);
     };
 
 	private _userJoin = (data: any): void => {
-        console.log('userjoin recived', data);
         this.emit('userjoin-recieved', data);
     };
 
@@ -1091,7 +1089,6 @@ export class CQWorkspacesClient extends (EventEmitter as new () => TypedEmitter<
 		if (!this.connected) {
 			throw new Error('please check your connection!');
 		}
-		console.log('user left');
 		this._socket.emit('userleft', {
 			userId,
 			time: Date.now(),
@@ -1102,7 +1099,6 @@ export class CQWorkspacesClient extends (EventEmitter as new () => TypedEmitter<
 		if (!this.connected) {
             throw new Error('please check your connection!');
         }
-        console.log('user joined');
         this._socket.emit('userjoin', {
             userId,
             time: Date.now(),

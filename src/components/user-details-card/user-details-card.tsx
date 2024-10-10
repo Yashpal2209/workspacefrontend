@@ -24,9 +24,9 @@ export const UserDetailsCard: React.FunctionComponent<UserDetailsCardProps> = (p
 		lastseen,
 	} = props;
 	let lastseenDate;
-	const formatTimestamp = (timestamp: any) => {
+	const formatTimestamp = (timestamp: Date) => {
 		const now = new Date().getTime();
-		const diff = now - timestamp;
+		const diff = now - Number(timestamp);
 		const seconds = Math.floor(diff / 1000);
 		const minutes = Math.floor(seconds / 60);
 		const hours = Math.floor(minutes / 60);
@@ -49,7 +49,6 @@ export const UserDetailsCard: React.FunctionComponent<UserDetailsCardProps> = (p
 		lastseenDate = new Date(Number(lastseen));
 		lastseenDate = formatTimestamp(lastseenDate);
 	}
-	// console.log(123, lastseen);
 	return (
 		<div className={styles.userDetailsCard}>
 			<div className={styles.userDetailsCardHeader} style={{ backgroundColor: stringToHSL(id) }}>
@@ -66,11 +65,9 @@ export const UserDetailsCard: React.FunctionComponent<UserDetailsCardProps> = (p
 				</div>
 			</div>
 			<div className={styles.userDetailsCardBody}>
-				{/* <small>NAME</small> */}
 				<p className={styles.detailsCardName}>{displayName}</p>
 				{showEmail && (
 					<>
-						{/* <small>EMAIL</small> */}
 						<p className={styles.detailsCardEmail}>{email}</p>
 					</>
 				)}
@@ -91,9 +88,6 @@ export const UserDetailsCard: React.FunctionComponent<UserDetailsCardProps> = (p
 				{showLastseen && lastseen === '-1'
 					? (
 						<div style={{ display: 'flex', float: 'right' }}>
-							{/* <p>{lastseen}</p> */}
-							{/* <small>EMAIL</small> */}
-							{/* <h1>hj</h1> */}
 							<h4>
 								<span style={{ fontWeight: 'bold' }}>
 									Status:
@@ -104,9 +98,6 @@ export const UserDetailsCard: React.FunctionComponent<UserDetailsCardProps> = (p
 					)
 					: (
 						<div style={{ display: 'flex', float: 'right' }}>
-							{/* <p>{lastseen}</p> */}
-							{/* <small>EMAIL</small> */}
-							{/* <h1>hj</h1> */}
 							<h4>
 								<span style={{ fontWeight: 'bold' }}>
 									Status:

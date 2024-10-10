@@ -3,7 +3,7 @@ import React, {
 } from 'react';
 import { DeleteOutlined, EditOutlined, CopyOutlined } from '@ant-design/icons';
 import {
-	Popover, Image, Popconfirm, Tooltip, message as alertMessage,
+	Image, Popconfirm, Tooltip, message as alertMessage,
 	Modal,
 } from 'antd';
 import Linkify from 'react-linkify';
@@ -135,7 +135,6 @@ export const Reply: React.FC<ReplyProps> = (props) => {
 								{sessionData?.userId === message.created_by?._id || (sessionData?.role !== '1' && message.created_by?.role === '1') ? (
 									<Popconfirm
 										title="Are you sure you want to delete this message?"
-										// visible={deleteVisible}
 										onConfirm={handleDeleteReply}
 										okButtonProps={{ loading: deleteLoader }}
 										onCancel={() => setdeleteVisible(false)}
@@ -181,33 +180,6 @@ export const Reply: React.FC<ReplyProps> = (props) => {
 					)
 				}
 				<div className={`${styles.replyContent} selectable`}>
-					{/* <Popover
-						trigger={['click']}
-						placement="right"
-						content={(
-							<div>
-								<UserDetailsCard
-									id={message.created_by?._id}
-									src={sessionData?.userId ===
-									 message.created_by?._id ? sessionData?.profilePic : ''}
-									displayName={message.created_by?.displayname}
-									email={message.created_by?.email}
-									showEmail={sessionData?.role !== UserRoles.User}
-									showDm={currentChannelType !== ChannelKind.Private
-										&& sessionData?.role !== '1'
-										&& handleDMUser && !isSidebarEmbed
-										&& currentChannelType !== ChannelKind.Private
-										&& message.created_by?._id !== sessionData?.userId}
-									handleDMUser={handleDMUser}
-									showLastseen
-									lastseen={message.created_by?.lastseen_at}
-								/>
-							</div>
-						)}
-						getPopupContainer={(trigger) => trigger.parentElement || document.body}
-					>
-						<span>{message.created_by?.displayname}</span>
-					</Popover> */}
 					<Modal
 						visible={isProfileModalVisible}
 						onCancel={() => { setIsProfileModalVisible(false); }}

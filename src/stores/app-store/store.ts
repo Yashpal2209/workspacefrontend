@@ -359,15 +359,6 @@ export function createAppStore(cqWorkspacesClient: CQWorkspacesClient): UseStore
 
 			const prevChId = currentChannel?.id;
 
-			// const channelUsersData: any = {};
-			// channel.user_ids.forEach((userId: string) => {
-			// 	channelUsersData[userId] = workspaceUsersData[userId];
-			// });
-
-			// channel.removed_user_ids?.forEach((userId: string) => {
-			// 	channelUsersData[userId] = workspaceUsersData[userId];
-			// });
-
 			const responseData = await cqWorkspacesClient.joinChannel(channel.id, currentWorkspace.id);
 			let likedMessageIds = [];
 			const workspaceId = currentWorkspace.id;
@@ -793,7 +784,6 @@ export function createAppStore(cqWorkspacesClient: CQWorkspacesClient): UseStore
 		});
 
 		cqWorkspacesClient.on('updateNotifyUsersListOfMessage-received', async (data: any) => {
-			// console.log(data);
 			set((state) => {
 				const message = state.messages?.find((msg: any) => msg.id === data.messageId);
 				if (message) {
@@ -992,13 +982,9 @@ export function createAppStore(cqWorkspacesClient: CQWorkspacesClient): UseStore
 		});
 
 		cqWorkspacesClient.on('userleft-received', async (data: any) => {
-			console.log('userleftReceived wtih data ', data);
 			const { messages } = get();
-			console.log(messages);
 			const updatedMessages = messages?.map((mesg: any) => {
-				console.log(mesg?.created_by?._id, data);
 				if (mesg?.created_by?._id === data) {
-					console.log('hii');
 					const msg = {
 						...mesg,
                         created_by: {
@@ -1010,7 +996,6 @@ export function createAppStore(cqWorkspacesClient: CQWorkspacesClient): UseStore
 				}
 				return mesg;
 			});
-			console.log(1234568, updatedMessages);
             set((state) => ({
                 ...state,
                 messages: updatedMessages,
@@ -1018,13 +1003,9 @@ export function createAppStore(cqWorkspacesClient: CQWorkspacesClient): UseStore
 		});
 
 		cqWorkspacesClient.on('userjoin-recieved', async (data: any) => {
-			console.log('userjoinReceived wtih data ', data);
 			const { messages } = get();
-			console.log(messages);
 			const updatedMessages = messages?.map((mesg: any) => {
-				console.log(mesg?.created_by?._id, data);
 				if (mesg?.created_by?._id === data) {
-					console.log('hii');
 					const msg = {
 						...mesg,
                         created_by: {
@@ -1036,7 +1017,6 @@ export function createAppStore(cqWorkspacesClient: CQWorkspacesClient): UseStore
 				}
 				return mesg;
 			});
-			console.log(1234569, updatedMessages);
             set((state) => ({
                 ...state,
                 messages: updatedMessages,

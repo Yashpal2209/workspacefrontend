@@ -150,7 +150,6 @@ export const Message = React.forwardRef<HTMLDivElement, MessageProps>((props, fo
 	const [notificationChangeLoader, setNotificationChangeLoader] = useState(false);
 	const [isProfileModalVisible, setIsProfileModalVisible] = useState(false);
 	const [userStatus, setUserStatus] = useState<string>('Hey! I am using workspace.');
-	const [lastseen, setLastseen] = useState<string>('Now');
 	// const [mentorsNotifyVisible, setMentorsNotifyVisible] = useState(false);
 	// const [mentorsNotifyLoader, setMentorsNotifyLoader] = useState(false);
 	const [likeMessageLoading, setLikeMessageLoading] = useState(false);
@@ -325,7 +324,6 @@ export const Message = React.forwardRef<HTMLDivElement, MessageProps>((props, fo
 	const showAnyUserProfile = useCallback(() => {
 		setIsProfileModalVisible(!isProfileModalVisible);
 	}, [isProfileModalVisible]);
-	console.log(1234, message);
 	return (
 		<div className={styles.messageWrapper} ref={forwardedRef}>
 			<div className={styles.avatarContainer}>
