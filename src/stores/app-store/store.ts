@@ -163,6 +163,8 @@ export interface AppState {
 	updateLastSeen: (data: string) => Promise<void>
 
 	updateOnline: (data: string) => Promise<void>
+
+	changePermissions: (data: string) => Promise<void>
 }
 
 const initialState: AppState = {
@@ -243,6 +245,7 @@ const initialState: AppState = {
 	deleteChannel: async () => {},
 	updateLastSeen: async () => {},
 	updateOnline: async () => {},
+	changePermissions: async () => {},
 };
 
 export function createAppStore(cqWorkspacesClient: CQWorkspacesClient): UseStore<AppState> {
@@ -1023,6 +1026,26 @@ export function createAppStore(cqWorkspacesClient: CQWorkspacesClient): UseStore
             }));
 		});
 
+		cqWorkspacesClient.on('changePermission-received', async (data:any) => {
+			console.log('gdhfgjkh', data);
+			set((state: any) => {
+				const updatedChannels = state.channels?.map((channel: any) => {
+					if (channel.id === data.channelId) {
+						return { ...channel, write_permission_type: parseInt(data.permissionValue, 10) };
+					}
+					return channel;
+				});
+				// eslint-disable-next-line no-param-reassign
+				state.channels = updatedChannels;
+				if (state.currentChannel.id === data.channelId) {
+					// eslint-disable-next-line no-param-reassign
+					state.currentChannel.write_permission_type = parseInt(data.permissionValue, 10);
+				}
+				console.log(state.channels);
+				// return { ...state, channels: updatedChannels };
+            });
+		});
+
 		cqWorkspacesClient.on('socket-connected', async () => {
 			logger.log('socket connected');
 
@@ -1048,7 +1071,6 @@ export function createAppStore(cqWorkspacesClient: CQWorkspacesClient): UseStore
 				connected: false,
 			}, false, AppAction.SocketDisconnected);
 		});
-
 		return {
 			...initialState,
 

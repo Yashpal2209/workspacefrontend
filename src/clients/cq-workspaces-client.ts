@@ -38,6 +38,7 @@ interface ClientEvents {
 	'channelUserDataChange-received': (data: any) => void
 	'userleft-received': (data: any) => void
 	'userjoin-recieved': (data: any) => void
+	'changePermission-received': (data: any) => void
 }
 
 interface SocketEmitEvents {
@@ -61,6 +62,7 @@ interface SocketEmitEvents {
 	getChannelUsersList: (data: any) => void
 	userleft: (data: any) => void
 	userjoin: (data: any) => void
+	changePermission: (data: any) => void
 }
 
 interface SocketListenEvents {
@@ -84,6 +86,7 @@ interface SocketListenEvents {
 	removePin: (data: any) => void
 	userleft: (data: any) => void
 	userjoin: (data: any) => void
+	changePermission: (data: any) => void
 }
 
 export class CQWorkspacesClient extends (EventEmitter as new () => TypedEmitter<ClientEvents>) {
@@ -245,6 +248,10 @@ export class CQWorkspacesClient extends (EventEmitter as new () => TypedEmitter<
         this.emit('userjoin-recieved', data);
     };
 
+	private _changePermission = (data: any): void => {
+		this.emit('changePermission-received', data);
+    };
+
 	private _attachSocketListeners = (): void => {
 		const { _socket } = this;
 
@@ -269,6 +276,7 @@ export class CQWorkspacesClient extends (EventEmitter as new () => TypedEmitter<
 		_socket.on('channelUserDataChange', this._onChannelUserDataChange);
 		_socket.on('userleft', this._onUserLeft);
 		_socket.on('userjoin', this._userJoin);
+		_socket.on('changePermission', this._changePermission);
 	};
 
 	private _detachSocketListeners = (): void => {
@@ -294,6 +302,7 @@ export class CQWorkspacesClient extends (EventEmitter as new () => TypedEmitter<
 		_socket.off('removePin', this._onRemovePin);
 		_socket.off('userleft', this._onUserLeft);
 		_socket.off('userjoin', this._userJoin);
+		_socket.off('changePermission', this._changePermission);
 	};
 
 	get connected(): boolean {
@@ -1102,6 +1111,16 @@ export class CQWorkspacesClient extends (EventEmitter as new () => TypedEmitter<
         this._socket.emit('userjoin', {
             userId,
             time: Date.now(),
+        });
+	};
+
+	changePermissions = async (channelId:string, permission:string): Promise<any> => {
+		if (!this.connected) {
+            throw new Error('please check your connection!');
+        }
+		this._socket.emit('changePermission', {
+            channelId,
+            permission,
         });
 	};
 }
